@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<!--
+  เว็บพอร์ตโฟลิโอส่วนตัวสำหรับ developer สไตล์ dark neon (เวอร์ชันจัดเต็ม)
+  ไฟล์เดียวจบ (HTML + CSS + JS) ไม่ต้องใช้ฐานข้อมูล อัปขึ้น GitHub Pages / Netlify ได้เลย
+  ข้อมูลส่วนใหญ่ (โปรเจกต์ รีวิว บทความ) แก้ได้ที่ object ด้านบนสุดของ <script>
+-->
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>เขมิกา อิดือเระ — Full-stack Developer</title>
+<meta name="description" content="พอร์ตโฟลิโอขอเขมิกา อิดือเระ นักพัฒนาเว็บ Full-stack">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  /* โทนสีหลัก — สีนีออนสองตัว (--a, --b) เปลี่ยนได้ด้วยปุ่มธีมหรือคำสั่ง theme ในเทอร์มินัล */
+  :root {
+    color-scheme: dark;
+    --bg: #0a0820;
+    --surface: #14112e;
+    --surface-2: #1b1740;
+    --line: #2a2552;
+    --text: #e8e6ff;
+    --muted: #8f8ab8;
+    --a: #3df5ff;
+    --b: #ff3df0;
+    --a-rgb: 61,245,255;
+    --b-rgb: 255,61,240;
+    --glow-a: 0 0 8px rgba(var(--a-rgb),.7), 0 0 28px rgba(var(--a-rgb),.35);
+    --glow-b: 0 0 8px rgba(var(--b-rgb),.7), 0 0 28px rgba(var(--b-rgb),.35);
+    --font-display: "Chakra Petch", "IBM Plex Sans Thai", system-ui, sans-serif;
+    --font-body: "IBM Plex Sans Thai", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  /* ธีมสำรอง */
+  :root[data-neon="matrix"] { --a: #3dff8b; --b: #b06bff; --a-rgb: 61,255,139; --b-rgb: 176,107,255; }
+  :root[data-neon="sunset"] { --a: #ffb03d; --b: #ff3d6e; --a-rgb: 255,176,61; --b-rgb: 255,61,110; }
+
+  *, *::before, *::after { box-sizing: inherit; margin: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: calc(72px + env(safe-area-inset-top, 0px)); background: var(--bg); }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.7; overflow-x: hidden; }
+  img { max-width: 100%; }
+  a { color: inherit; }
+  button { font: inherit; }
+  :focus-visible { outline: 2px solid var(--a); outline-offset: 3px; border-radius: 4px; }
+  .wrap { width: min(1120px, 100% - 2.5rem); margin-inline: auto; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  /* แถบความคืบหน้าการเลื่อนหน้า */
+  .progress { position: fixed; top: 0; left: 0; height: 3px; width: 0; z-index: 50; background: linear-gradient(90deg, var(--a), var(--b)); box-shadow: var(--glow-a); }
+
+  /* ---------- เมนูด้านบน ---------- */
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: rgba(10,8,32,.8); backdrop-filter: blur(12px); }
+  .nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: rgba(10,8,32,.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+  .nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 1rem; }
+  .logo { font-family: var(--font-mono); font-weight: 600; text-decoration: none; color: var(--a); text-shadow: var(--glow-a); }
+  .nav ul { display: flex; gap: 1.5rem; list-style: none; padding: 0; margin-left: auto; }
+  .nav ul a { text-decoration: none; color: var(--muted); font-size: .95rem; transition: color .2s; }
+  .nav ul a:hover, .nav ul a.active { color: var(--text); }
+  .nav ul a.active { text-shadow: var(--glow-a); }
+  .theme-btn { display: flex; gap: 4px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: none; cursor: pointer; }
+  .theme-btn i { width: 10px; height: 10px; border-radius: 50%; }
+  .theme-btn i:first-child { background: var(--a); box-shadow: var(--glow-a); }
+  .theme-btn i:last-child { background: var(--b); box-shadow: var(--glow-b); }
+
+  /* ---------- Hero ---------- */
+  .hero { position: relative; min-height: calc(100svh - 64px); display: grid; align-items: center; overflow: hidden; }
+  #grid { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+  .hero .wrap { position: relative; z-index: 1; display: grid; grid-template-columns: 1.05fr 1fr; gap: 3rem; align-items: center; padding-block: 4rem 6rem; }
+  .status { display: inline-flex; align-items: center; gap: .6rem; font-size: .9rem; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: .3rem .9rem; margin-bottom: 1.5rem; background: rgba(20,17,46,.7); }
+  .status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #3dffa8; box-shadow: 0 0 10px #3dffa8; animation: pulse 2s infinite; }
+  @keyframes pulse { 50% { opacity: .35; } }
+  .hello { font-family: var(--font-mono); color: var(--b); font-size: .95rem; margin-bottom: .8rem; }
+  .name { font-family: var(--font-display); font-weight: 700; font-size: clamp(2.75rem, 7vw, 5.5rem); line-height: 1.02; color: #fff; text-shadow: var(--glow-a); }
+  .name span { display: inline-block; animation: flicker 1.6s ease-out both; }
+  .name span:nth-child(3) { animation-delay: .35s; }
+  @keyframes flicker { 0%, 18%, 22%, 52%, 56% { opacity: .15; text-shadow: none; } 20%, 54%, 100% { opacity: 1; } }
+  .role { margin-top: 1.25rem; font-size: 1.2rem; color: var(--muted); max-width: 36ch; min-height: 3.4em; }
+  .role .rotator { color: var(--text); font-weight: 600; border-right: 2px solid var(--a); padding-right: 3px; }
+  .cta { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; }
+  .btn { font-family: var(--font-display); font-weight: 700; font-size: 1rem; padding: .85rem 1.6rem; border-radius: 6px; text-decoration: none; cursor: pointer; border: 1.5px solid var(--a); color: var(--a); background: transparent; transition: background .2s, color .2s, box-shadow .2s; display: inline-block; }
+  .btn:hover { background: var(--a); color: var(--bg); box-shadow: var(--glow-a); }
+  .btn.alt { border-color: var(--b); color: var(--b); }
+  .btn.alt:hover { background: var(--b); color: var(--bg); box-shadow: var(--glow-b); }
+
+  .term { background: rgba(12,10,34,.9); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 0 0 1px rgba(var(--a-rgb),.08), 0 30px 80px -20px rgba(var(--b-rgb),.35); font-family: var(--font-mono); font-size: .9rem; overflow: hidden; }
+  .term-bar { display: flex; align-items: center; gap: .5rem; padding: .7rem 1rem; border-bottom: 1px solid var(--line); color: var(--muted); font-size: .8rem; }
+  .term-bar i { width: 11px; height: 11px; border-radius: 50%; }
+  .term-bar i:nth-child(1) { background: #ff5f7e; } .term-bar i:nth-child(2) { background: #ffd23d; } .term-bar i:nth-child(3) { background: #3dffa8; }
+  .term-bar span { margin-left: auto; }
+  .term-body { height: 320px; overflow-y: auto; padding: 1rem 1.1rem; cursor: text; }
+  .term-body p { white-space: pre-wrap; word-break: break-word; line-height: 1.6; }
+  .term .ps { color: var(--b); } .term .ok { color: var(--a); } .term .dim { color: var(--muted); }
+  .term-input { display: flex; gap: .6rem; }
+  .term-input input { flex: 1; min-width: 0; background: none; border: 0; color: var(--text); font: inherit; outline: none; caret-color: var(--a); }
+  .chips { display: flex; flex-wrap: wrap; gap: .5rem; padding: .75rem 1.1rem 1rem; border-top: 1px solid var(--line); }
+  .chips button { font-family: var(--font-mono); font-size: .78rem; color: var(--muted); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: .25rem .6rem; cursor: pointer; }
+  .chips button:hover { color: var(--a); border-color: var(--a); }
+
+  /* ---------- ตัวเลขสรุป ---------- */
+  .stats { border-block: 1px solid var(--line); background: var(--surface); }
+  .stats .wrap { display: grid; grid-template-columns: repeat(4, 1fr); }
+  .stat { padding: 2rem 1rem; text-align: center; }
+  .stat + .stat { border-left: 1px solid var(--line); }
+  .stat b { display: block; font-family: var(--font-display); font-size: clamp(2rem, 4vw, 2.75rem); line-height: 1.1; color: #fff; text-shadow: var(--glow-a); }
+  .stat span { color: var(--muted); font-size: .92rem; }
+
+  /* ---------- ส่วนเนื้อหาทั่วไป ---------- */
+  section.block { padding-block: 6rem; }
+  section.block + section.block { border-top: 1px solid var(--line); }
+  h2 { font-family: var(--font-display); font-weight: 700; font-size: clamp(2rem, 4vw, 2.75rem); line-height: 1.15; margin-bottom: .6rem; }
+  h2 .hash { color: var(--b); text-shadow: var(--glow-b); margin-right: .4rem; }
+  .lead { color: var(--muted); max-width: 60ch; margin-bottom: 2.75rem; }
+
+  /* เกี่ยวกับ + ทักษะแบบแถบระดับ */
+  .about { display: grid; grid-template-columns: 1.1fr 1fr; gap: 4rem; }
+  .about-text p { color: var(--muted); max-width: 60ch; }
+  .about-text p + p { margin-top: 1.1rem; }
+  .about-text strong { color: var(--text); font-weight: 500; }
+  .now { margin-top: 2rem; padding: 1.25rem 1.4rem; border: 1px dashed var(--line); border-radius: 10px; }
+  .now h3 { font-family: var(--font-display); font-size: 1rem; color: var(--a); margin-bottom: .5rem; }
+  .now ul { padding-left: 1.2rem; color: var(--muted); font-size: .95rem; }
+  .skill { margin-bottom: 1.15rem; }
+  .skill-head { display: flex; justify-content: space-between; font-size: .95rem; margin-bottom: .35rem; }
+  .skill-head span:last-child { font-family: var(--font-mono); color: var(--muted); font-size: .82rem; }
+  .bar { height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 0; border-radius: 3px; background: linear-gradient(90deg, var(--a), var(--b)); box-shadow: var(--glow-a); transition: width 1.4s cubic-bezier(.2,.8,.2,1); }
+  .tools { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.75rem; list-style: none; padding: 0; }
+  .tools li { font-family: var(--font-mono); font-size: .82rem; padding: .3rem .75rem; border: 1px solid var(--line); border-radius: 4px; color: var(--muted); }
+
+  /* กราฟ contribution แบบ GitHub */
+  .heat-card { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 1.5rem; }
+  .heat-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; font-size: .95rem; color: var(--muted); }
+  .heat-top b { color: var(--text); font-family: var(--font-display); font-size: 1.15rem; }
+  .heat-scroll { overflow-x: auto; padding-bottom: .5rem; }
+  .heat { display: grid; grid-template-rows: repeat(7, 12px); grid-auto-flow: column; grid-auto-columns: 12px; gap: 3px; width: max-content; }
+  .heat i { border-radius: 2px; background: var(--surface-2); }
+  .heat i[data-l="1"] { background: rgba(var(--a-rgb),.25); }
+  .heat i[data-l="2"] { background: rgba(var(--a-rgb),.5); }
+  .heat i[data-l="3"] { background: rgba(var(--a-rgb),.78); }
+  .heat i[data-l="4"] { background: var(--a); box-shadow: 0 0 6px rgba(var(--a-rgb),.8); }
+  .heat i:hover { outline: 1px solid #fff; }
+  .heat-legend { display: flex; align-items: center; gap: 3px; justify-content: flex-end; font-size: .8rem; color: var(--muted); margin-top: .75rem; }
+  .heat-legend i { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
+  .heat-tip { font-family: var(--font-mono); font-size: .82rem; color: var(--a); min-height: 1.4em; margin-top: .5rem; }
+  .langs { display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 1.5rem; }
+  .langs-key { display: flex; flex-wrap: wrap; gap: 1.25rem; margin-top: .75rem; font-size: .85rem; color: var(--muted); list-style: none; padding: 0; }
+  .langs-key li::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--c); margin-right: .4rem; }
+
+  /* ผลงาน: ปุ่มกรอง + การ์ดเอียง + modal */
+  .filters { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 2rem; }
+  .filters button { background: none; border: 1px solid var(--line); color: var(--muted); padding: .45rem 1rem; border-radius: 999px; cursor: pointer; font-size: .92rem; transition: all .2s; }
+  .filters button:hover { color: var(--text); }
+  .filters button[aria-pressed="true"] { color: var(--bg); background: var(--a); border-color: var(--a); box-shadow: var(--glow-a); }
+  .projects { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; perspective: 1000px; }
+  .project { position: relative; text-align: left; color: inherit; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 1.5rem; cursor: pointer; transform-style: preserve-3d; transition: transform .15s ease-out, border-color .25s, box-shadow .25s, opacity .3s; display: flex; flex-direction: column; }
+  .project:hover { border-color: var(--a); box-shadow: 0 0 40px -12px rgba(var(--a-rgb),.55); }
+  .project.featured { grid-column: span 2; }
+  .project .preview { height: 150px; border-radius: 8px; margin-bottom: 1.25rem; position: relative; overflow: hidden; border: 1px solid var(--line); }
+  .project.featured .preview { height: 210px; }
+  .project .preview span { position: absolute; left: .75rem; bottom: .6rem; font-family: var(--font-mono); font-size: .75rem; color: rgba(255,255,255,.75); }
+  .project .cat { font-size: .8rem; color: var(--b); margin-bottom: .25rem; }
+  .project h3 { font-family: var(--font-display); font-size: 1.3rem; line-height: 1.3; margin-bottom: .4rem; }
+  .project p { color: var(--muted); font-size: .95rem; flex: 1; }
+  .project .tags { margin-top: 1rem; font-family: var(--font-mono); font-size: .78rem; color: var(--a); }
+  .project.hide { display: none; }
+
+  dialog { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--text); padding: 0; width: min(680px, 92vw); max-height: 88vh; box-shadow: 0 0 80px -10px rgba(var(--b-rgb),.45); }
+  dialog::backdrop { background: rgba(5,4,18,.75); backdrop-filter: blur(4px); }
+  dialog[open] { animation: pop .25s ease-out; }
+  @keyframes pop { from { opacity: 0; transform: translateY(16px) scale(.98); } }
+  .dlg-preview { height: 220px; }
+  .dlg-body { padding: 1.75rem; }
+  .dlg-body h3 { font-family: var(--font-display); font-size: 1.7rem; line-height: 1.25; }
+  .dlg-body .cat { color: var(--b); font-size: .9rem; }
+  .dlg-body p { color: var(--muted); margin-top: 1rem; }
+  .dlg-body ul { color: var(--muted); margin-top: 1rem; padding-left: 1.2rem; }
+  .dlg-body ul li::marker { color: var(--a); }
+  .dlg-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; }
+  .dlg-close { position: absolute; top: .75rem; right: .75rem; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: rgba(10,8,32,.75); color: var(--text); cursor: pointer; font-size: 1.1rem; }
+
+  /* ประสบการณ์ */
+  .timeline { list-style: none; padding: 0; border-left: 2px solid var(--line); margin-left: .5rem; }
+  .timeline li { position: relative; padding: 0 0 2.75rem 2rem; }
+  .timeline li:last-child { padding-bottom: 0; }
+  .timeline li::before { content: ""; position: absolute; left: -7px; top: .55rem; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 2px solid var(--a); box-shadow: var(--glow-a); }
+  .timeline time { font-family: var(--font-mono); font-size: .85rem; color: var(--a); }
+  .timeline h3 { font-family: var(--font-display); font-size: 1.25rem; margin-top: .2rem; }
+  .timeline p { color: var(--muted); max-width: 62ch; margin-top: .3rem; }
+  .split { display: grid; grid-template-columns: 1.4fr 1fr; gap: 4rem; }
+  .awards { list-style: none; padding: 0; }
+  .awards li { padding: 1rem 0; border-bottom: 1px solid var(--line); display: flex; gap: 1rem; }
+  .awards li:first-child { padding-top: 0; }
+  .awards .ico { font-size: 1.4rem; line-height: 1.4; }
+  .awards b { display: block; font-weight: 600; }
+  .awards small { color: var(--muted); font-size: .88rem; }
+  .side-title { font-family: var(--font-display); font-size: 1.2rem; color: var(--b); margin-bottom: 1rem; }
+
+  /* รีวิวจากเพื่อนร่วมงาน */
+  .quote-box { position: relative; border: 1px solid var(--line); border-radius: 14px; padding: clamp(1.75rem, 4vw, 3rem); background: radial-gradient(circle at 0 0, rgba(var(--b-rgb),.12), transparent 50%), var(--surface); }
+  .quote-box blockquote { font-size: clamp(1.15rem, 2.4vw, 1.5rem); line-height: 1.65; max-width: 52ch; min-height: 6.6em; transition: opacity .35s; }
+  .quote-box blockquote::before { content: "“"; display: block; font-family: var(--font-display); font-size: 4rem; line-height: .6; color: var(--b); text-shadow: var(--glow-b); margin-bottom: .75rem; }
+  .who { display: flex; align-items: center; gap: .9rem; margin-top: 1.75rem; transition: opacity .35s; }
+  .avatar { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; color: var(--bg); background: linear-gradient(135deg, var(--a), var(--b)); }
+  .who small { display: block; color: var(--muted); font-size: .88rem; }
+  .q-nav { display: flex; gap: .5rem; margin-top: 2rem; align-items: center; }
+  .q-nav button.arrow { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: none; color: var(--text); cursor: pointer; }
+  .q-nav button.arrow:hover { border-color: var(--a); color: var(--a); }
+  .dots { display: flex; gap: .4rem; margin-left: .75rem; }
+  .dots button { width: 8px; height: 8px; padding: 0; border-radius: 50%; border: 0; background: var(--line); cursor: pointer; }
+  .dots button[aria-current="true"] { background: var(--a); box-shadow: var(--glow-a); width: 22px; border-radius: 4px; }
+
+  /* บทความ */
+  .posts { list-style: none; padding: 0; }
+  .posts a { display: grid; grid-template-columns: 120px 1fr auto; gap: 1.5rem; align-items: baseline; padding: 1.4rem 0; border-bottom: 1px solid var(--line); text-decoration: none; transition: padding .25s, background .25s; }
+  .posts a:hover { padding-inline: 1rem; background: var(--surface); }
+  .posts a:hover h3 { color: var(--a); }
+  .posts time { font-family: var(--font-mono); font-size: .82rem; color: var(--muted); }
+  .posts h3 { font-family: var(--font-display); font-size: 1.15rem; transition: color .2s; }
+  .posts p { color: var(--muted); font-size: .92rem; }
+  .posts .read { font-size: .85rem; color: var(--muted); white-space: nowrap; }
+
+  /* ติดต่อ */
+  .contact-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 4rem; align-items: start; }
+  .email { display: inline-block; font-family: var(--font-display); font-weight: 700; font-size: clamp(1.3rem, 3.2vw, 2rem); color: #fff; text-decoration: none; text-shadow: var(--glow-b); border-bottom: 2px solid var(--b); }
+  .email:hover { color: var(--b); }
+  .clock { margin-top: 1.5rem; font-family: var(--font-mono); color: var(--muted); font-size: .9rem; }
+  .clock b { color: var(--a); font-weight: 600; }
+  .socials { display: flex; flex-wrap: wrap; gap: 1.25rem; margin-top: 1.75rem; list-style: none; padding: 0; }
+  .socials a { color: var(--muted); text-decoration: none; font-family: var(--font-mono); font-size: .9rem; }
+  .socials a:hover { color: var(--a); }
+  form { display: grid; gap: 1rem; }
+  label { font-size: .9rem; color: var(--muted); display: block; margin-bottom: .3rem; }
+  input.f, textarea.f { width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: .8rem 1rem; color: var(--text); font: inherit; transition: border-color .2s, box-shadow .2s; }
+  input.f:focus, textarea.f:focus { outline: none; border-color: var(--a); box-shadow: 0 0 0 3px rgba(var(--a-rgb),.15); }
+  textarea.f { min-height: 140px; resize: vertical; }
+  .form-note { font-size: .85rem; color: var(--muted); }
+  .form-msg { font-size: .92rem; color: var(--a); min-height: 1.4em; }
+
+  footer { text-align: center; padding: 2.5rem 0 3rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line); }
+  footer kbd { font-family: var(--font-mono); font-size: .78rem; border: 1px solid var(--line); border-radius: 3px; padding: 0 .3rem; }
+
+  .to-top { position: fixed; right: 1.25rem; bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px)); z-index: 30; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--a); background: rgba(10,8,32,.85); color: var(--a); cursor: pointer; font-size: 1.1rem; opacity: 0; pointer-events: none; transition: opacity .3s; }
+  .to-top.show { opacity: 1; pointer-events: auto; }
+  .to-top:hover { box-shadow: var(--glow-a); }
+
+  /* ฝน matrix (easter egg) */
+  #matrix { position: fixed; inset: 0; z-index: 60; pointer-events: none; opacity: 0; transition: opacity .6s; }
+  #matrix.on { opacity: .9; }
+
+  .cursor-glow { position: fixed; width: 420px; height: 420px; border-radius: 50%; pointer-events: none; z-index: 0; background: radial-gradient(circle, rgba(var(--b-rgb),.10), transparent 65%); transform: translate(-50%, -50%); left: -500px; top: -500px; }
+  @media (hover: none) { .cursor-glow { display: none; } }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 960px) {
+    .projects { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 860px) {
+    .hero .wrap, .about, .split, .contact-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    .hero .wrap { padding-block: 3rem 4rem; }
+    .stats .wrap { grid-template-columns: repeat(2, 1fr); }
+    .stat:nth-child(3) { border-left: 0; }
+    .stat:nth-child(n+3) { border-top: 1px solid var(--line); }
+    .nav ul .hide-sm { display: none; }
+    .term-body { height: 260px; }
+    .posts a { grid-template-columns: 1fr; gap: .25rem; }
+  }
+  @media (max-width: 620px) {
+    .projects { grid-template-columns: 1fr; }
+    .project.featured { grid-column: auto; }
+    .nav ul { gap: 1rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+<div class="cursor-glow" aria-hidden="true"></div>
+<canvas id="matrix" aria-hidden="true"></canvas>
+
+<nav class="nav" aria-label="เมนูหลัก">
+  <div class="wrap">
+    <a href="#top" class="logo">~Kemika</a>
+    <ul>
+      <li class="hide-sm"><a href="#about">เกี่ยวกับ</a></li>
+      <li><a href="#work">ผลงาน</a></li>
+      <li class="hide-sm"><a href="#journey">ประสบการณ์</a></li>
+      <li class="hide-sm"><a href="#writing">บทความ</a></li>
+      <li><a href="#contact">ติดต่อ</a></li>
+    </ul>
+    <button class="theme-btn" id="themeBtn" aria-label="เปลี่ยนสีนีออน" title="เปลี่ยนสีนีออน"><i></i><i></i></button>
+  </div>
+</nav>
+
+<main id="top">
+  <!-- Hero -->
+  <header class="hero">
+    <canvas id="grid" aria-hidden="true"></canvas>
+    <div class="wrap">
+      <div>
+        <p class="status">ว่างรับงานตั้งแต่ ธ.ค. 2026</p>
+        <p class="hello">&gt; สวัสดีค่ะ ดิฉันชื่อ</p>
+        <h1 class="name"><span>เขมิกา</span><br><span>อิดือเระ</span></h1>
+        <p class="role">ดิฉันคือ <span class="rotator" id="rotator">Full-stack Developer</span><br>ที่ชอบทำเว็บให้เร็ว ใช้ง่าย และมีลูกเล่นพอให้คนยิ้มได้</p>
+        <div class="cta">
+          <a href="#work" class="btn">ดูผลงาน</a>
+          <a href="#contact" class="btn alt">ติดต่อผม</a>
+        </div>
+      </div>
+
+      <div class="term" role="region" aria-label="เทอร์มินัลแนะนำตัว">
+        <div class="term-bar"><i></i><i></i><i></i><span>kemika@portfolio: ~</span></div>
+        <div class="term-body" id="termBody" aria-live="polite">
+          <div id="termOut"></div>
+          <div class="term-input">
+            <span class="ps">❯</span>
+            <label for="termIn" class="sr">พิมพ์คำสั่ง</label>
+            <input id="termIn" autocomplete="off" spellcheck="false" placeholder="ลองพิมพ์ help">
+          </div>
+        </div>
+        <div class="chips" aria-label="คำสั่งลัด">
+          <button data-cmd="whoami">whoami</button>
+          <button data-cmd="skills">skills</button>
+          <button data-cmd="theme">theme</button>
+          <button data-cmd="matrix">matrix</button>
+          <button data-cmd="sudo hire-me">sudo hire-me</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ตัวเลขสรุป (นับขึ้นเมื่อเลื่อนมาเห็น) -->
+  <div class="stats">
+    <div class="wrap">
+      <div class="stat"><b data-count="3">0</b><span>ปีประสบการณ์</span></div>
+      <div class="stat"><b data-count="27">0</b><span>โปรเจกต์ที่ส่งมอบ</span></div>
+      <div class="stat"><b data-count="1842">0</b><span>commits ปีนี้</span></div>
+      <div class="stat"><b data-count="964">0</b><span>แก้วกาแฟ (โดยประมาณ)</span></div>
+    </div>
+  </div>
+
+  <!-- เกี่ยวกับ -->
+  <section class="block" id="about">
+    <div class="wrap">
+      <h2><span class="hash">#</span>เกี่ยวกับดิฉัน</h2>
+      <p class="lead">นักพัฒนาที่เชื่อว่าโค้ดที่ดีคือโค้ดที่คนใช้แล้วไม่ต้องคิด</p>
+      <div class="about">
+        <div class="about-text">
+          <p>ดิฉันเริ่มเขียนโค้ดตอนอายุ 19 เพราะอยากทำเว็บแฟนคลับวงดนตรีที่ชอบ จากวันนั้นก็ไม่เคยหยุดอีกเลย ตอนนี้ทำงานเป็น <strong>Full-stack Developer มา 3 ปี</strong> ดูแลตั้งแต่หน้าเว็บไปจนถึง API</p>
+          <p>สิ่งที่ใส่ใจที่สุดคือ <strong>ประสบการณ์ของคนใช้งานจริง</strong> เว็บที่โหลดเร็วกว่าเดิมหนึ่งวินาที หรือฟอร์มที่กรอกง่ายขึ้นหนึ่งช่อง สำหรับดิฉันคือชัยชนะเล็กๆ ที่มีความหมาย</p>
+          <div class="now">
+            <h3>ช่วงนี้กำลัง…</h3>
+            <ul>
+              <li>สร้างแอปจดรายจ่ายที่คุยด้วยภาษาไทยได้</li>
+              <li>อ่าน “Designing Data-Intensive Applications”</li>
+              <li>ฝึกทำ shader ด้วย WebGL</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <div id="skills"></div>
+          <ul class="tools">
+            <li>Docker</li><li>Git</li><li>Figma</li><li>Vercel</li><li>Redis</li><li>Tailwind</li><li>Three.js</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- กิจกรรมการเขียนโค้ด -->
+  <section class="block" id="activity">
+    <div class="wrap">
+      <h2><span class="hash">#</span>เขียนโค้ดทุกวัน</h2>
+      <p class="lead">กิจกรรมบน GitHub ในรอบหนึ่งปี ชี้ที่ช่องเพื่อดูรายละเอียด</p>
+      <div class="heat-card">
+        <div class="heat-top">
+          <div><b id="totalContrib">0</b> contributions ใน 12 เดือน</div>
+          <div>ทำต่อเนื่องยาวสุด <b id="streak">0</b> วัน</div>
+        </div>
+        <div class="heat-scroll"><div class="heat" id="heat" role="img" aria-label="กราฟ contribution รายวันย้อนหลังหนึ่งปี"></div></div>
+        <p class="heat-tip" id="heatTip"></p>
+        <div class="heat-legend">น้อย <i style="background:var(--surface-2)"></i><i style="background:rgba(var(--a-rgb),.25)"></i><i style="background:rgba(var(--a-rgb),.5)"></i><i style="background:rgba(var(--a-rgb),.78)"></i><i style="background:var(--a)"></i> มาก</div>
+        <div class="langs" id="langs" aria-hidden="true"></div>
+        <ul class="langs-key" id="langsKey"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ผลงาน -->
+  <section class="block" id="work">
+    <div class="wrap">
+      <h2><span class="hash">#</span>ผลงานที่ภูมิใจ</h2>
+      <p class="lead">กดที่การ์ดเพื่อดูรายละเอียด ปัญหาที่เจอ และสิ่งที่ได้เรียนรู้</p>
+      <div class="filters" id="filters" role="group" aria-label="กรองผลงาน"></div>
+      <div class="projects" id="projects"></div>
+    </div>
+  </section>
+
+  <dialog id="dlg" aria-labelledby="dlgTitle">
+    <button class="dlg-close" id="dlgClose" aria-label="ปิด">✕</button>
+    <div class="dlg-preview" id="dlgPreview"></div>
+    <div class="dlg-body">
+      <p class="cat" id="dlgCat"></p>
+      <h3 id="dlgTitle"></h3>
+      <p id="dlgDesc"></p>
+      <ul id="dlgPoints"></ul>
+      <p class="tags" id="dlgTags" style="font-family:var(--font-mono);font-size:.85rem;color:var(--a)"></p>
+      <div class="dlg-actions">
+        <a class="btn" href="#" id="dlgDemo">ดูเว็บจริง</a>
+        <a class="btn alt" href="#" id="dlgCode">ดูโค้ดบน GitHub</a>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ประสบการณ์ + รางวัล -->
+  <section class="block" id="journey">
+    <div class="wrap">
+      <h2><span class="hash">#</span>เส้นทางที่ผ่านมา</h2>
+      <p class="lead">จากเด็กทำเว็บแฟนคลับ สู่การนำทีมพัฒนา</p>
+      <div class="split">
+        <ol class="timeline">
+          <li><time>2024 – ปัจจุบัน</time><h3>Full-stack Developer, บริษัท ตัวอย่าง จำกัด</h3><p>นำทีม 3 คนสร้างระบบจัดการคลังสินค้าใหม่ ลดเวลาโหลดหน้า dashboard ลง 60%</p></li>
+          <li><time>2023 – 2024</time><h3>Frontend Developer, สตาร์ทอัพ ตัวอย่าง</h3><p>พัฒนาเว็บแอปด้วย React และวางระบบ component library ที่ทีมใช้ร่วมกัน</p></li>
+          <li><time>2022</time><h3>นักศึกษาฝึกงาน, เอเจนซี ตัวอย่าง</h3><p>ทำเว็บแคมเปญให้แบรนด์ 5 แบรนด์ ได้เรียนรู้การทำงานกับดีไซเนอร์แบบใกล้ชิด</p></li>
+          <li><time>2019 – 2023</time><h3>วิทยาการคอมพิวเตอร์, มหาวิทยาลัย ตัวอย่าง</h3><p>ปริญญาตรี</p></li>
+        </ol>
+        <div>
+          <h3 class="side-title">รางวัลและใบรับรอง</h3>
+          <ul class="awards">
+            <li><span class="ico">🏆</span><div><b>ชนะเลิศ Hackathon ตัวอย่าง 2025</b><small>แอปช่วยผู้สูงอายุนัดหมอ ภายใน 48 ชั่วโมง</small></div></li>
+            <li><span class="ico">☁️</span><div><b>AWS Certified Developer – Associate</b><small>ได้รับเมื่อ 2025</small></div></li>
+            <li><span class="ico">⭐</span><div><b>Open source: 1.2k stars</b><small>ไลบรารีตัดคำภาษาไทยสำหรับ JavaScript</small></div></li>
+            <li><span class="ico">🎤</span><div><b>วิทยากร meetup ตัวอย่าง</b><small>หัวข้อ “ทำเว็บให้เร็วขึ้นโดยไม่ต้องเขียนใหม่”</small></div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- รีวิว -->
+  <section class="block" id="kudos">
+    <div class="wrap">
+      <h2><span class="hash">#</span>คนที่เคยทำงานด้วยพูดว่า</h2>
+      <p class="lead">&nbsp;</p>
+      <div class="quote-box" aria-roledescription="สไลด์รีวิว">
+        <blockquote id="qText"></blockquote>
+        <div class="who" id="qWho"><div class="avatar" id="qAvatar"></div><div><b id="qName"></b><small id="qRole"></small></div></div>
+        <div class="q-nav">
+          <button class="arrow" id="qPrev" aria-label="รีวิวก่อนหน้า">←</button>
+          <button class="arrow" id="qNext" aria-label="รีวิวถัดไป">→</button>
+          <div class="dots" id="qDots"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- บทความ -->
+  <section class="block" id="writing">
+    <div class="wrap">
+      <h2><span class="hash">#</span>บทความล่าสุด</h2>
+      <p class="lead">เขียนแบ่งปันสิ่งที่เรียนรู้จากการทำงานจริง</p>
+      <ul class="posts" id="posts"></ul>
+    </div>
+  </section>
+
+  <!-- ติดต่อ -->
+  <section class="block" id="contact">
+    <div class="wrap contact-grid">
+      <div>
+        <h2><span class="hash">#</span>มาคุยกันครับ</h2>
+        <p class="lead">เปิดรับงานประจำและฟรีแลนซ์ ตอบภายใน 24 ชั่วโมง</p>
+        <a class="email" href="mailto:hello@thanawat.dev">hello@thanawat.dev</a>
+        <p class="clock">ตอนนี้ที่กรุงเทพฯ <b id="clock">--:--</b> <span id="awake"></span></p>
+        <ul class="socials">
+          <li><a href="#">GitHub</a></li><li><a href="#">LinkedIn</a></li><li><a href="#">X / Twitter</a></li><li><a href="#">Resume (PDF)</a></li>
+        </ul>
+      </div>
+      <form id="form" novalidate>
+        <div><label for="fName">ชื่อของคุณ</label><input class="f" id="fName" required autocomplete="name"></div>
+        <div><label for="fMail">อีเมล</label><input class="f" id="fMail" type="email" required autocomplete="email"></div>
+        <div><label for="fMsg">อยากคุยเรื่องอะไร</label><textarea class="f" id="fMsg" required></textarea></div>
+        <button class="btn" type="submit">ส่งข้อความ</button>
+        <p class="form-note">กดแล้วจะเปิดแอปอีเมลของคุณพร้อมข้อความที่กรอกไว้</p>
+        <p class="form-msg" id="formMsg" role="status"></p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>สร้างด้วย HTML, CSS และกาแฟเย็นหลายแก้ว © 2026 · ลองกด <kbd>↑↑↓↓←→←→BA</kbd> ดูสิ</footer>
+<button class="to-top" id="toTop" aria-label="กลับขึ้นด้านบน">↑</button>
+
+<script>
+/* ===================== ข้อมูลทั้งหมด แก้ตรงนี้ ===================== */
+const PROFILE = {
+  name: "ธนวัฒน์ ใจดี",
+  role: "Full-stack Developer",
+  location: "กรุงเทพฯ",
+  email: "hello@thanawat.dev",
+  roles: ["Full-stack Developer", "React ตัวยง", "สายรีดความเร็วเว็บ", "คนชอบแก้บั๊กตอนตีสอง"],
+};
+
+// ระดับความถนัด 0–100
+const SKILLS = [
+  ["TypeScript / JavaScript", 92], ["React / Next.js", 90], ["Node.js", 84],
+  ["Go", 70], ["PostgreSQL", 78], ["UI / UX Design", 65],
+];
+
+// สัดส่วนภาษาที่ใช้ในปีนี้ (รวมกันควรได้ 100)
+const LANGS = [["TypeScript", 46, "#3df5ff"], ["Go", 21, "#ff3df0"], ["CSS", 14, "#ffd23d"], ["SQL", 11, "#3dffa8"], ["อื่นๆ", 8, "#8f8ab8"]];
+
+// cat ต้องตรงกับชื่อใน FILTERS, hue ใช้สร้างภาพพรีวิวแบบ gradient แทนรูปจริง
+const PROJECTS = [
+  { title: "Kinkao — แอปสั่งอาหารในออฟฟิศ", cat: "เว็บแอป", featured: true, hue: 190,
+    short: "รวมออเดอร์ข้าวกลางวันของทั้งออฟฟิศในลิงก์เดียว หารเงินอัตโนมัติ ใช้จริงกว่า 40 บริษัท",
+    long: "เริ่มจากปัญหาในออฟฟิศตัวเองที่ต้องจดออเดอร์ลงกระดาษทุกวัน เลยทำเป็นลิงก์ที่ทุกคนเข้ามาเลือกเมนูเองได้ แล้วระบบหารเงินให้ตอนจบ",
+    points: ["ลดเวลาจดออเดอร์จาก 20 นาทีเหลือไม่ถึง 2 นาที", "รองรับผู้ใช้พร้อมกัน 300 คนด้วย WebSocket", "มีผู้ใช้งานจริงกว่า 40 บริษัท"],
+    tags: "Next.js / Go / PostgreSQL / WebSocket" },
+  { title: "Fon Tok — พยากรณ์ฝนรายเขต", cat: "เว็บแอป", hue: 220,
+    short: "แผนที่บอกโอกาสฝนตกละเอียดระดับเขต ดึงข้อมูลจาก API สาธารณะ",
+    long: "แผนที่แบบ interactive ที่บอกว่าเขตไหนฝนกำลังจะตกในอีก 1 ชั่วโมง ทำเพราะเบื่อติดฝนตอนขี่มอเตอร์ไซค์กลับบ้าน",
+    points: ["ดึงข้อมูลจาก Open-Meteo ทุก 15 นาที", "แคชผลลัพธ์ในเบราว์เซอร์ให้โหลดซ้ำได้ทันที"], tags: "React / Leaflet / Open-Meteo" },
+  { title: "Thai Wordle", cat: "เกม", hue: 300,
+    short: "เกมทายคำภาษาไทยวันละคำ แก้ปัญหาสระและวรรณยุกต์",
+    long: "Wordle ต้นฉบับใช้กับภาษาไทยไม่ได้เพราะสระและวรรณยุกต์ซ้อนกัน เลยออกแบบให้หนึ่งช่องคือหนึ่งพยางค์แทน",
+    points: ["มีคนเล่นสูงสุด 8,000 คนต่อวัน", "ทำงานแบบ offline ได้ด้วย Service Worker"], tags: "TypeScript / Vite / PWA" },
+  { title: "thai-cut — ไลบรารีตัดคำ", cat: "Open source", hue: 140,
+    short: "ตัดคำภาษาไทยในเบราว์เซอร์ ขนาดแค่ 18KB",
+    long: "ไลบรารีตัดคำภาษาไทยที่เล็กพอจะใช้ฝั่งเบราว์เซอร์ได้ ไม่ต้องพึ่ง server",
+    points: ["1.2k stars บน GitHub", "เร็วกว่าไลบรารีเดิม 3 เท่าในชุดทดสอบเดียวกัน"], tags: "TypeScript / WASM" },
+  { title: "Jod — แอปจดรายจ่าย", cat: "มือถือ", hue: 30,
+    short: "พิมพ์ว่า “กาแฟ 65” แล้วแอปจัดหมวดให้อัตโนมัติ",
+    long: "แอปจดรายจ่ายที่ไม่ต้องกรอกฟอร์ม แค่พิมพ์เป็นภาษาพูด แอปจะแยกจำนวนเงินและหมวดหมู่ให้",
+    points: ["สร้างด้วย React Native ใช้ได้ทั้ง iOS และ Android", "ข้อมูลเก็บในเครื่องทั้งหมด ไม่ส่งขึ้น server"], tags: "React Native / SQLite" },
+  { title: "Neon Runner", cat: "เกม", hue: 330,
+    short: "เกมวิ่งหลบสิ่งกีดขวางในโลก synthwave เล่นบนเบราว์เซอร์",
+    long: "โปรเจกต์สุดสัปดาห์เพื่อฝึก Three.js เป็นเกมวิ่งสามมิติที่ความเร็วเพิ่มตามจังหวะเพลง",
+    points: ["60fps บนมือถือรุ่นกลาง", "เพลงและจังหวะสร้างด้วย Web Audio API"], tags: "Three.js / Web Audio" },
+];
+const FILTERS = ["ทั้งหมด", "เว็บแอป", "มือถือ", "เกม", "Open source"];
+
+const QUOTES = [
+  { text: "ธนวัฒน์เป็น dev ที่ถามว่า ‘ผู้ใช้จะรู้สึกยังไง’ ก่อนถามว่า ‘จะเขียนยังไง’ เสมอ ทำให้งานออกมาดีกว่าที่ทีมคาดไว้ทุกครั้ง", name: "ศิริพร ส.", role: "Product Manager, บริษัท ตัวอย่าง" },
+  { text: "ส่งงานตรงเวลา โค้ดอ่านง่าย และที่สำคัญคือคุยรู้เรื่องมาก อธิบายเรื่องเทคนิคให้ลูกค้าที่ไม่ใช่สายนี้เข้าใจได้", name: "ณัฐพล ก.", role: "ผู้ก่อตั้ง, สตาร์ทอัพ ตัวอย่าง" },
+  { text: "ตอนเป็น junior ผมได้เรียนรู้จากพี่ธนวัฒน์เยอะมาก รีวิวโค้ดละเอียดแต่ไม่เคยทำให้รู้สึกแย่", name: "ภูมิ ร.", role: "Frontend Developer" },
+];
+
+const POSTS = [
+  { date: "ต.ค. 2026", title: "ลดเวลาโหลดหน้าเว็บ 60% โดยไม่ต้องเขียนใหม่", desc: "เทคนิคจริงที่ใช้กับระบบคลังสินค้า ตั้งแต่ lazy load ถึง edge cache", read: "8 นาที" },
+  { date: "ส.ค. 2026", title: "ทำไมตัดคำภาษาไทยถึงยาก และผมแก้ยังไง", desc: "เบื้องหลังไลบรารี thai-cut ที่มีคนใช้หลักพัน", read: "12 นาที" },
+  { date: "พ.ค. 2026", title: "จาก React สู่ Go: สิ่งที่ frontend dev ควรรู้", desc: "บันทึกการเปลี่ยนมาเขียน backend ครั้งแรก", read: "6 นาที" },
+];
+
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $ = s => document.querySelector(s);
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+/** สร้างพื้นหลัง gradient แทนภาพหน้าจอ (เปลี่ยนเป็น <img> จริงทีหลังได้) */
+const previewBg = h => `radial-gradient(circle at 25% 30%, hsla(${h},100%,62%,.55), transparent 55%), radial-gradient(circle at 80% 75%, hsla(${h + 60},100%,60%,.45), transparent 55%), linear-gradient(135deg, #1d1745, #0e0b26)`;
+
+/* ===================== ธีมสีนีออน ===================== */
+const THEMES = ["neon", "matrix", "sunset"];
+/** วนเปลี่ยนธีมไปตัวถัดไป และคืนชื่อธีมใหม่ */
+function cycleTheme() {
+  const cur = document.documentElement.dataset.neon || "neon";
+  const next = THEMES[(THEMES.indexOf(cur) + 1) % THEMES.length];
+  document.documentElement.dataset.neon = next;
+  try { localStorage.setItem("neon", next); } catch (e) {}
+  return next;
+}
+try { const saved = localStorage.getItem("neon"); if (saved) document.documentElement.dataset.neon = saved; } catch (e) {}
+$("#themeBtn").addEventListener("click", cycleTheme);
+
+/* ===================== ข้อความตำแหน่งที่หมุนเปลี่ยน ===================== */
+/** พิมพ์-ลบตำแหน่งงานวนไปเรื่อยๆ ใต้ชื่อ */
+async function rotateRoles() {
+  const el = $("#rotator");
+  if (reduceMotion) return;
+  let i = 0;
+  await wait(2600);
+  while (true) {
+    const cur = PROFILE.roles[i];
+    for (let n = cur.length; n >= 0; n--) { el.textContent = cur.slice(0, n); await wait(30); }
+    i = (i + 1) % PROFILE.roles.length;
+    const nxt = PROFILE.roles[i];
+    for (let n = 1; n <= nxt.length; n++) { el.textContent = nxt.slice(0, n); await wait(55); }
+    await wait(2200);
+  }
+}
+rotateRoles();
+
+/* ===================== เทอร์มินัล ===================== */
+const termOut = $("#termOut"), termIn = $("#termIn"), termBody = $("#termBody");
+const history = []; let histIdx = 0;
+
+/** เพิ่มบรรทัดลงเทอร์มินัล แล้วเลื่อนลงล่างสุด */
+function print(text, cls = "") {
+  const p = document.createElement("p");
+  if (cls) p.className = cls;
+  p.textContent = text;
+  termOut.appendChild(p);
+  termBody.scrollTop = termBody.scrollHeight;
+}
+
+/** เลื่อนหน้าไปยัง section ตาม id */
+const go = id => setTimeout(() => document.getElementById(id).scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" }), 600);
+
+const JOKES = [
+  "ทำไม dev ชอบความมืด? เพราะแสงสว่างดึงดูดบั๊ก 🐛",
+  "มีบั๊ก 99 ตัวในโค้ด แก้ไปหนึ่ง... ตอนนี้มี 127 ตัว",
+  "โค้ดใช้งานได้ ไม่รู้ทำไม / โค้ดใช้ไม่ได้ ไม่รู้ทำไม",
+];
+
+const COMMANDS = {
+  help: () => print("คำสั่งที่ใช้ได้:\n  whoami     แนะนำตัว\n  skills     ทักษะ\n  projects   ไปดูผลงาน\n  blog       บทความล่าสุด\n  contact    ช่องทางติดต่อ\n  theme      เปลี่ยนสีนีออน\n  matrix     เปิด/ปิดฝนดิจิทัล\n  joke       มุกโปรแกรมเมอร์\n  date       วันเวลาตอนนี้\n  clear      ล้างหน้าจอ\nใช้ปุ่ม ↑ ↓ เรียกคำสั่งเก่าได้", "dim"),
+  whoami: () => print(`${PROFILE.name}\n${PROFILE.role} อยู่${PROFILE.location}\nชอบเปลี่ยนไอเดียให้เป็นเว็บที่ใช้งานได้จริง`),
+  skills: () => { print(SKILLS.map(([n, v]) => `  ${n.padEnd(24)} ${"█".repeat(Math.round(v / 10))}${"░".repeat(10 - Math.round(v / 10))}`).join("\n"), "ok"); },
+  projects: () => { print(PROJECTS.map(p => `  ▸ ${p.title}`).join("\n"), "ok"); print("กำลังเลื่อนไปที่ส่วนผลงาน...", "dim"); go("work"); },
+  blog: () => { print(POSTS.map(p => `  ✎ ${p.title}`).join("\n"), "ok"); go("writing"); },
+  contact: () => { print(`อีเมล: ${PROFILE.email}`); go("contact"); },
+  theme: () => print(`เปลี่ยนธีมเป็น "${cycleTheme()}" แล้ว ✨`, "ok"),
+  matrix: () => print(toggleMatrix() ? "Wake up, Neo... (พิมพ์ matrix อีกครั้งเพื่อปิด)" : "กลับสู่โลกจริงแล้ว", "ok"),
+  joke: () => print(JOKES[Math.floor(Math.random() * JOKES.length)]),
+  date: () => print(new Date().toLocaleString("th-TH", { dateStyle: "full", timeStyle: "short" })),
+  ls: () => print("about/  projects/  blog/  contact/  secret.txt", "ok"),
+  "cat secret.txt": () => print("ความลับคือ... ผมยังใช้ console.log debug อยู่ 🤫"),
+  clear: () => { termOut.innerHTML = ""; },
+  "sudo hire-me": () => { print("[sudo] รหัสผ่านถูกต้อง ✓\nกำลังเปิดอีเมลหาผม... ขอบคุณที่สนใจครับ 🎉", "ok"); setTimeout(() => location.href = `mailto:${PROFILE.email}`, 1200); },
+};
+
+/** รันคำสั่งที่พิมพ์ (ไม่สนตัวพิมพ์เล็กใหญ่) */
+function run(raw) {
+  const cmd = raw.trim().toLowerCase();
+  if (!cmd) return;
+  history.push(raw.trim()); histIdx = history.length;
+  print(`❯ ${raw.trim()}`, "ps");
+  if (COMMANDS[cmd]) COMMANDS[cmd]();
+  else if (cmd.startsWith("sudo")) print("ใช้ sudo ได้คำสั่งเดียวนะ ลอง sudo hire-me", "dim");
+  else if (cmd.startsWith("rm")) print("ใจเย็นๆ ครับ 😅 ไม่ลบอะไรทั้งนั้น", "dim");
+  else print(`ไม่รู้จักคำสั่ง "${cmd}" ลองพิมพ์ help`, "dim");
+}
+
+termIn.addEventListener("keydown", e => {
+  if (e.key === "Enter") { run(termIn.value); termIn.value = ""; }
+  // เรียกคำสั่งเก่าด้วยลูกศรขึ้น/ลง เหมือนเทอร์มินัลจริง
+  else if (e.key === "ArrowUp" && history.length) { histIdx = Math.max(0, histIdx - 1); termIn.value = history[histIdx]; e.preventDefault(); }
+  else if (e.key === "ArrowDown") { histIdx = Math.min(history.length, histIdx + 1); termIn.value = history[histIdx] || ""; }
+});
+termBody.addEventListener("click", () => termIn.focus());
+document.querySelectorAll(".chips button").forEach(b => b.addEventListener("click", () => run(b.dataset.cmd)));
+
+/** ข้อความต้อนรับที่พิมพ์ทีละตัวตอนโหลดหน้า */
+async function bootSequence() {
+  const lines = [{ t: "❯ whoami", c: "ps" }, { t: `${PROFILE.name} — ${PROFILE.role}`, c: "" }, { t: "พิมพ์ help หรือกดปุ่มด้านล่างเพื่อสำรวจ", c: "dim" }];
+  for (const { t, c } of lines) {
+    if (reduceMotion) { print(t, c); continue; }
+    const p = document.createElement("p"); if (c) p.className = c; termOut.appendChild(p);
+    for (const ch of t) { p.textContent += ch; await wait(28); }
+    await wait(250);
+  }
+}
+bootSequence();
+
+/* ===================== ฉากหลัง synthwave ใน hero ===================== */
+const canvas = $("#grid"), ctx = canvas.getContext("2d");
+let W, H, offset = 0, mouseX = 0;
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+/** ปรับขนาด canvas ตามจอ (คูณ devicePixelRatio ให้คมบนจอ retina) */
+function resize() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = canvas.clientWidth; H = canvas.clientHeight;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+/** วาดพื้นตาราง perspective + พระอาทิตย์ (อ่านสีจากธีมปัจจุบันทุกเฟรม) */
+function draw() {
+  const a = cssVar("--a-rgb"), b = cssVar("--b-rgb");
+  ctx.clearRect(0, 0, W, H);
+  const horizon = H * 0.62, cx = W / 2 + mouseX * 40;
+  const sun = ctx.createLinearGradient(0, horizon - 220, 0, horizon);
+  sun.addColorStop(0, `rgba(${b},.38)`); sun.addColorStop(1, `rgba(${b},.03)`);
+  ctx.fillStyle = sun; ctx.beginPath(); ctx.arc(W * 0.78, horizon, 170, Math.PI, 0); ctx.fill();
+  // แถบตัดพระอาทิตย์แบบ retro
+  ctx.fillStyle = "#0a0820";
+  for (let i = 0; i < 6; i++) ctx.fillRect(W * 0.78 - 175, horizon - 60 + i * 11, 350, 2 + i * 0.8);
+  ctx.lineWidth = 1;
+  // เส้นแนวนอนเว้นระยะแบบยกกำลัง ให้ดูเหมือนพื้นทอดยาวไปไกล
+  for (let i = 0; i < 18; i++) {
+    const t = (i + offset) / 18, y = horizon + Math.pow(t, 2.4) * (H - horizon);
+    ctx.strokeStyle = `rgba(${a},${0.08 + t * 0.4})`;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+  for (let i = -20; i <= 20; i++) {
+    ctx.strokeStyle = `rgba(${a},.16)`;
+    ctx.beginPath(); ctx.moveTo(cx + i * 6, horizon); ctx.lineTo(cx + i * (W / 12), H); ctx.stroke();
+  }
+  const fade = ctx.createLinearGradient(0, horizon - 10, 0, horizon + 60);
+  fade.addColorStop(0, "rgba(10,8,32,1)"); fade.addColorStop(1, "rgba(10,8,32,0)");
+  ctx.fillStyle = fade; ctx.fillRect(0, horizon - 10, W, 70);
+}
+function loop() { offset = (offset + 0.012) % 1; draw(); requestAnimationFrame(loop); }
+resize();
+addEventListener("resize", () => { resize(); draw(); });
+if (reduceMotion) { draw(); new MutationObserver(draw).observe(document.documentElement, { attributes: true }); } else loop();
+
+/* ===================== ฝน matrix (easter egg) ===================== */
+const mx = $("#matrix"), mctx = mx.getContext("2d");
+let matrixOn = false, drops = [];
+
+/** เปิด/ปิดฝนตัวอักษร คืนค่า true ถ้าเปิดอยู่ */
+function toggleMatrix() {
+  matrixOn = !matrixOn;
+  mx.classList.toggle("on", matrixOn);
+  if (matrixOn) {
+    mx.width = innerWidth; mx.height = innerHeight;
+    drops = Array(Math.ceil(innerWidth / 16)).fill(0).map(() => Math.random() * -50);
+    matrixLoop();
+  }
+  return matrixOn;
+}
+function matrixLoop() {
+  if (!matrixOn) { mctx.clearRect(0, 0, mx.width, mx.height); return; }
+  mctx.fillStyle = "rgba(10,8,32,.12)"; mctx.fillRect(0, 0, mx.width, mx.height);
+  mctx.fillStyle = cssVar("--a"); mctx.font = "15px JetBrains Mono, monospace";
+  const chars = "ธนวัฒน์01アイウエオ<>{}/=;กขคง";
+  drops.forEach((y, i) => {
+    mctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * 16, y * 16);
+    drops[i] = y * 16 > mx.height && Math.random() > 0.975 ? 0 : y + 1;
+  });
+  setTimeout(() => requestAnimationFrame(matrixLoop), 40);
+}
+
+// Konami code ↑↑↓↓←→←→BA เปิด matrix
+const KONAMI = ["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
+let kIdx = 0;
+addEventListener("keydown", e => {
+  if (e.target === termIn) return;
+  kIdx = e.key.toLowerCase() === KONAMI[kIdx].toLowerCase() ? kIdx + 1 : 0;
+  if (kIdx === KONAMI.length) { kIdx = 0; toggleMatrix(); }
+});
+
+/* ===================== ทักษะ (แถบเติมเมื่อเลื่อนมาเห็น) ===================== */
+$("#skills").innerHTML = SKILLS.map(([n, v]) =>
+  `<div class="skill"><div class="skill-head"><span>${n}</span><span>${v}%</span></div><div class="bar"><i data-w="${v}"></i></div></div>`).join("");
+
+/* ===================== Heatmap ===================== */
+/** สุ่มแบบกำหนด seed ได้ เพื่อให้กราฟเหมือนเดิมทุกครั้งที่โหลด */
+function seeded(s) { return () => (s = (s * 9301 + 49297) % 233280) / 233280; }
+
+/**
+ * สร้างกราฟ contribution 53 สัปดาห์ (ข้อมูลจำลอง)
+ * TODO: เปลี่ยนเป็นข้อมูลจริงจาก GitHub API ได้ถ้าต้องการ
+ */
+function buildHeatmap() {
+  const rnd = seeded(42), heat = $("#heat");
+  const today = new Date(); const start = new Date(today); start.setDate(start.getDate() - 364 - start.getDay());
+  let total = 0, streak = 0, best = 0; const frag = document.createDocumentFragment();
+  for (let d = new Date(start); d <= today; d.setDate(d.getDate() + 1)) {
+    const weekend = d.getDay() === 0 || d.getDay() === 6;
+    // วันธรรมดา commit บ่อยกว่าวันหยุด ให้ดูสมจริง
+    let n = Math.floor(Math.pow(rnd(), weekend ? 2.6 : 1.3) * 14);
+    if (rnd() < (weekend ? .45 : .12)) n = 0;
+    total += n; streak = n ? streak + 1 : 0; best = Math.max(best, streak);
+    const l = n === 0 ? 0 : n < 3 ? 1 : n < 6 ? 2 : n < 10 ? 3 : 4;
+    const cell = document.createElement("i");
+    cell.dataset.l = l;
+    cell.dataset.tip = `${n} contributions · ${d.toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "numeric" })}`;
+    frag.appendChild(cell);
+  }
+  heat.appendChild(frag);
+  heat.addEventListener("pointerover", e => { if (e.target.dataset.tip) $("#heatTip").textContent = e.target.dataset.tip; });
+  $("#totalContrib").dataset.count = total; $("#streak").dataset.count = best;
+  $("#langs").innerHTML = LANGS.map(([, p, c]) => `<span style="width:${p}%;background:${c}"></span>`).join("");
+  $("#langsKey").innerHTML = LANGS.map(([n, p, c]) => `<li style="--c:${c}">${n} ${p}%</li>`).join("");
+}
+buildHeatmap();
+
+/* ===================== ผลงาน + ตัวกรอง + modal ===================== */
+const grid = $("#projects");
+grid.innerHTML = PROJECTS.map((p, i) => `
+  <button class="project${p.featured ? " featured" : ""}" data-i="${i}" data-cat="${p.cat}" data-tilt>
+    <div class="preview" style="background:${previewBg(p.hue)}"><span>[ ใส่ภาพหน้าจอ ]</span></div>
+    <p class="cat">${p.cat}</p><h3>${p.title}</h3><p>${p.short}</p><p class="tags">${p.tags}</p>
+  </button>`).join("");
+
+$("#filters").innerHTML = FILTERS.map((f, i) => `<button aria-pressed="${i === 0}">${f}</button>`).join("");
+$("#filters").addEventListener("click", e => {
+  const btn = e.target.closest("button"); if (!btn) return;
+  document.querySelectorAll("#filters button").forEach(b => b.setAttribute("aria-pressed", b === btn));
+  const f = btn.textContent;
+  grid.querySelectorAll(".project").forEach(c => {
+    const show = f === "ทั้งหมด" || c.dataset.cat === f;
+    c.classList.toggle("hide", !show);
+    // ตอนกรอง ไม่ให้การ์ดเด่นกินสองคอลัมน์ เพราะจะเหลือช่องว่างแปลกๆ
+    c.classList.toggle("featured", show && f === "ทั้งหมด" && PROJECTS[c.dataset.i].featured);
+  });
+});
+
+const dlg = $("#dlg");
+grid.addEventListener("click", e => {
+  const card = e.target.closest(".project"); if (!card) return;
+  const p = PROJECTS[card.dataset.i];
+  $("#dlgPreview").style.background = previewBg(p.hue);
+  $("#dlgCat").textContent = p.cat; $("#dlgTitle").textContent = p.title;
+  $("#dlgDesc").textContent = p.long; $("#dlgTags").textContent = p.tags;
+  $("#dlgPoints").innerHTML = p.points.map(t => `<li>${t}</li>`).join("");
+  dlg.showModal();
+});
+$("#dlgClose").addEventListener("click", () => dlg.close());
+// คลิกนอกกล่อง (โดน backdrop) ให้ปิด modal
+dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
+
+if (!reduceMotion && matchMedia("(hover: hover)").matches) {
+  grid.addEventListener("pointermove", e => {
+    const card = e.target.closest("[data-tilt]"); if (!card) return;
+    const r = card.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+    card.style.transform = `rotateY(${x * 10}deg) rotateX(${-y * 10}deg)`;
+  });
+  grid.addEventListener("pointerout", e => { const c = e.target.closest("[data-tilt]"); if (c && !c.contains(e.relatedTarget)) c.style.transform = ""; });
+}
+
+/* ===================== รีวิวแบบสไลด์ ===================== */
+let qi = 0, qTimer;
+$("#qDots").innerHTML = QUOTES.map((_, i) => `<button aria-label="รีวิวที่ ${i + 1}"></button>`).join("");
+
+/** แสดงรีวิวลำดับที่ i พร้อมเฟดเปลี่ยน */
+async function showQuote(i) {
+  qi = (i + QUOTES.length) % QUOTES.length;
+  const q = QUOTES[qi], els = [$("#qText"), $("#qWho")];
+  if (!reduceMotion) { els.forEach(e => e.style.opacity = 0); await wait(300); }
+  $("#qText").textContent = q.text; $("#qName").textContent = q.name; $("#qRole").textContent = q.role;
+  $("#qAvatar").textContent = q.name.charAt(0);
+  els.forEach(e => e.style.opacity = 1);
+  document.querySelectorAll("#qDots button").forEach((d, j) => d.setAttribute("aria-current", j === qi));
+}
+/** เริ่มนับเวลาเลื่อนรีวิวอัตโนมัติใหม่ (รีเซ็ตทุกครั้งที่ผู้ใช้กดเอง) */
+function restartQuotes() { clearInterval(qTimer); if (!reduceMotion) qTimer = setInterval(() => showQuote(qi + 1), 7000); }
+$("#qPrev").addEventListener("click", () => { showQuote(qi - 1); restartQuotes(); });
+$("#qNext").addEventListener("click", () => { showQuote(qi + 1); restartQuotes(); });
+$("#qDots").addEventListener("click", e => { const i = [...e.currentTarget.children].indexOf(e.target); if (i >= 0) { showQuote(i); restartQuotes(); } });
+showQuote(0); restartQuotes();
+
+/* ===================== บทความ ===================== */
+$("#posts").innerHTML = POSTS.map(p =>
+  `<li><a href="#"><time>${p.date}</time><div><h3>${p.title}</h3><p>${p.desc}</p></div><span class="read">อ่าน ${p.read}</span></a></li>`).join("");
+
+/* ===================== นาฬิกาเวลาไทย ===================== */
+/** แสดงเวลากรุงเทพฯ และบอกว่าตอนนี้น่าจะตื่นอยู่ไหม */
+function tick() {
+  const now = new Date();
+  $("#clock").textContent = now.toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" });
+  const h = +now.toLocaleString("en-US", { timeZone: "Asia/Bangkok", hour: "numeric", hour12: false });
+  $("#awake").textContent = h >= 9 && h < 23 ? "· น่าจะตอบได้เร็ว ☕" : "· น่าจะหลับอยู่ 😴";
+}
+tick(); setInterval(tick, 30000);
+
+/* ===================== ฟอร์มติดต่อ (เปิดแอปอีเมล ไม่ต้องมี backend) ===================== */
+$("#form").addEventListener("submit", e => {
+  e.preventDefault();
+  const name = $("#fName").value.trim(), mail = $("#fMail").value.trim(), msg = $("#fMsg").value.trim();
+  if (!name || !msg || !/^\S+@\S+\.\S+$/.test(mail)) {
+    $("#formMsg").textContent = "กรอกชื่อ อีเมลที่ถูกต้อง และข้อความให้ครบก่อนส่ง";
+    return;
+  }
+  const body = encodeURIComponent(`${msg}\n\n— ${name} (${mail})`);
+  location.href = `mailto:${PROFILE.email}?subject=${encodeURIComponent("ติดต่อจากพอร์ตโฟลิโอ: " + name)}&body=${body}`;
+  $("#formMsg").textContent = "เปิดแอปอีเมลแล้ว กดส่งในแอปเพื่อส่งข้อความ";
+});
+
+/* ===================== เอฟเฟกต์ตอนเลื่อนหน้า ===================== */
+/** นับตัวเลขขึ้นจาก 0 ถึงค่าเป้าหมายแบบชะลอตอนท้าย */
+function countUp(el) {
+  const target = +el.dataset.count, t0 = performance.now(), dur = 1600;
+  if (reduceMotion) { el.textContent = target.toLocaleString(); return; }
+  (function step(t) {
+    const k = Math.min(1, (t - t0) / dur);
+    el.textContent = Math.round(target * (1 - Math.pow(1 - k, 3))).toLocaleString();
+    if (k < 1) requestAnimationFrame(step);
+  })(t0);
+}
+const io = new IntersectionObserver(entries => entries.forEach(en => {
+  if (!en.isIntersecting) return;
+  en.target.querySelectorAll("[data-count]").forEach(countUp);
+  en.target.querySelectorAll(".bar i").forEach(b => b.style.width = b.dataset.w + "%");
+  io.unobserve(en.target);
+}), { threshold: .3 });
+[".stats", "#about", "#activity"].forEach(s => io.observe($(s)));
+
+// ไฮไลต์เมนูตาม section ที่กำลังดู
+const navLinks = [...document.querySelectorAll(".nav ul a")];
+const navIO = new IntersectionObserver(entries => entries.forEach(en => {
+  if (en.isIntersecting) navLinks.forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + en.target.id));
+}), { rootMargin: "-45% 0px -50% 0px" });
+document.querySelectorAll("section.block").forEach(s => navIO.observe(s));
+
+// แถบ progress + ปุ่มกลับขึ้นบน
+addEventListener("scroll", () => {
+  const max = document.documentElement.scrollHeight - innerHeight;
+  $(".progress").style.width = (scrollY / max * 100) + "%";
+  $("#toTop").classList.toggle("show", scrollY > innerHeight);
+}, { passive: true });
+$("#toTop").addEventListener("click", () => scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" }));
+
+// แสงตามเมาส์ + มุมมองพื้นตารางใน hero
+const glow = $(".cursor-glow");
+addEventListener("pointermove", e => {
+  glow.style.left = e.clientX + "px"; glow.style.top = e.clientY + "px";
+  mouseX = e.clientX / innerWidth - .5;
+});
+</script>
+</body>
+</html>
